@@ -12,7 +12,10 @@ class Game(object):
     num_divers = 2
     max_air = 25
 
-    def __init__(self):
+    def __init__(self, print_state=False, print_action=False, print_result=False):
+        self.print_state = print_state
+        self.print_action = print_action
+        self.print_result = print_result
         self.current_round = 1
         self.diver_index = 0
         self.air = Game.max_air
@@ -60,7 +63,8 @@ class Game(object):
         for current_round in range(1, Game.num_round + 1):
             self.current_round = current_round
 
-            self.render()
+            if self.print_state:
+                self.render()
 
             self.diver_index = -1
             while self.air >= 0 and any(not diver.return_ship for diver in self.divers):
@@ -78,13 +82,16 @@ class Game(object):
                     start_surface = yield ("ask surface", self)
                     if start_surface:
                         diver.direction = -1
-                        print("Diver{0} decides surface".format(diver.id))
+                        if self.print_action:
+                            print("Diver{0} decides surface".format(diver.id))
 
-                        self.render()
+                        if self.print_state:
+                            self.render()
 
                 dice = Game.throw_dice()
                 actual = max(0, dice - len(diver.current_tips))
-                print("Diver{0}, Dice {1}, actual {2}".format(diver.id, dice, actual))
+                if self.print_action:
+                    print("Diver{0}, Dice {1}, actual {2}".format(diver.id, dice, actual))
 
                 before_depth = diver.depth
                 for _ in range(actual):
@@ -97,10 +104,12 @@ class Game(object):
                         diver.depth -= diver.direction
                     assert diver.depth >= before_depth
 
-                self.render()
+                if self.print_state:
+                    self.render()
 
                 if diver.depth == 0:
-                    print("Success to return Diver{0}".format(diver.id))
+                    if self.print_action:
+                        print("Success to return Diver{0}".format(diver.id))
                     diver.return_ship = True
                     continue
 
@@ -108,9 +117,11 @@ class Game(object):
                     release_tip = yield ("ask release", self)
                     if release_tip is not None:
                         self.tips.release_at(diver.depth, release_tip)
-                        print("Diver{0} release Tip {1} at {2}".format(diver.id, release_tip.mark(), diver.depth))
+                        if self.print_action:
+                            print("Diver{0} release Tip {1} at {2}".format(diver.id, release_tip.mark(), diver.depth))
 
-                        self.render()
+                        if self.print_state:
+                            self.render()
 
                 elif (diver.depth <= len(self.tips.tips) and not self.tips.tips[diver.depth - 1].is_blank() or
                       diver.depth == len(self.tips.tips) + 1 and len(self.tips.carry_over) > 0):
@@ -118,11 +129,14 @@ class Game(object):
                     if answer_get_tip:
                         get_tips = self.tips.get_at(diver.depth)
                         diver.current_tips += get_tips
-                        print("Diver{0} get Tips {1} at {2}".format(
-                            diver.id, ",".join([tip.mark() for tip in get_tips]), diver.depth))
+                        if self.print_action:
+                            print("Diver{0} get Tips {1} at {2}".format(
+                                diver.id, ",".join([tip.mark() for tip in get_tips]), diver.depth))
 
-                        self.render()
-            print("Round{0} finish".format(current_round))
+                        if self.print_state:
+                            self.render()
+            if self.print_action:
+                print("Round{0} finish".format(current_round))
 
             self.air = Game.max_air
             new_carry_over = []
@@ -132,7 +146,13 @@ class Game(object):
                     diver.current_tips = []
                 diver.setup_round()
             self.tips.setup_round(new_carry_over)
-        self.render()
+
+        if self.print_state:
+            self.render()
+
+        if self.print_result:
+            for diver in self.divers:
+                print('Diver{0}: score={1}'.format(diver.id, diver.compute_score()))
 
 
 class Diver(object):

@@ -21,7 +21,11 @@ class DeepSeaAdventureEnv(gym.Env):
 
     dtype = np.uint8
 
-    def __init__(self):
+    def __init__(self, print_state=False, print_action=False, print_result=False):
+        self.print_state = print_state
+        self.print_action = print_action
+        self.print_result = print_result
+
         self.action_space = spaces.Discrete(2)  # skip, do
         # dimention = 87
         self.observation_space = spaces.MultiDiscrete(
@@ -125,7 +129,7 @@ class DeepSeaAdventureEnv(gym.Env):
         return self.convert_vector(), 0.0, False, {}
 
     def _reset(self):
-        self.game = Game()
+        self.game = Game(self.print_state, self.print_action, self.print_result)
         self.g = self.game.start()
         self.ask, self.state = self.g.next()
         return self.convert_vector()
