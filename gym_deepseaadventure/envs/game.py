@@ -2,7 +2,6 @@
 import collections
 import copy
 import itertools
-import logging
 import random
 
 import numpy as np
@@ -45,7 +44,7 @@ class Game(object):
                 print("{0:2} {1} {2}{3} {4}".format(
                     depth, mark, direction_mark, diver[0].id, ",".join([tip.mark() for tip in diver[0].current_tips])))
             else:
-                print "{0:2} {1}".format(depth, mark)
+                print("{0:2} {1}".format(depth, mark))
         if len(self.tips.carry_over) > 0:
             mark = "".join(tip.mark() for tip in self.tips.carry_over)
             diver = [d for d in self.divers if d.depth == len(self.tips.tips) + 1]
@@ -54,7 +53,7 @@ class Game(object):
                 print("{0:2} {1} {2}{3} {4}".format(
                     len(self.tips.tips) + 1, mark, direction_mark, diver[0].id, ",".join([tip.mark() for tip in diver[0].current_tips])))
             else:
-                print "{0:2} {1}".format(len(self.tips.tips) + 1, mark)
+                print("{0:2} {1}".format(len(self.tips.tips) + 1, mark))
         print("-" * 100)
 
     def start(self):

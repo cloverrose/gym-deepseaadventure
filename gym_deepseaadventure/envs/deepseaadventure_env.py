@@ -2,7 +2,6 @@
 import collections
 import copy
 import itertools
-import logging
 import random
 
 import numpy as np
