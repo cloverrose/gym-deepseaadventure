@@ -91,7 +91,14 @@ class DeepSeaAdventureEnv(gym.Env):
                     self.ask, self.state = self.g.send(True)
                 elif self.ask == 'ask release':
                     diver = self.game.divers[0]
-                    release_tip = diver.current_tips.pop()
+                    each_level_tips = collections.defaultdict(list)
+                    for tip in diver.current_tips:
+                        each_level_tips[tip.level].append(tip)
+                    for level in range(1, Tips.num_levels + 1):
+                        if level in each_level_tips:
+                            release_tip = random.choice(each_level_tips[level])
+                            break
+                    diver.current_tips.remove(release_tip)
                     self.ask, self.state = self.g.send(release_tip)
 
             # opponent step
